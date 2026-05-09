@@ -4,6 +4,18 @@
   "displayName": "Depot",
   "description": "Voyage Depot is a shared utility stockroom for Unity projects, collecting reusable runtime helpers, editor tooling, and common extensions.",
   "unity": "2022.3",
+  "samples": [
+    {
+      "displayName": "Android Keep Alive Sample",
+      "description": "Shows foreground keep-alive service, battery optimization whitelist, and alive duration calls.",
+      "path": "Samples~/Android/AndroidKeepAliveSample"
+    },
+    {
+      "displayName": "Android Notification Sample",
+      "description": "Shows audible, silent, and scheduled Android notification calls.",
+      "path": "Samples~/Android/AndroidNotificationSample"
+    }
+  ],
   "author": {
     "name": "VoyageForge",
     "url": "https://github.com/VoyageForge/Depot"
