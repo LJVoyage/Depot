@@ -26,6 +26,7 @@ Depot 是 VoyageForge 的基础工具仓库，定位为 Unity 开发过程中的
   Android 原生能力的 Unity 调用示例，导入示例后可挂到场景对象或按钮事件上测试。
 - `Editor/Scripts/Utilities`
   Depot 的编辑器工具与 Project Settings 相关实现。
+  其中 `DepotSettingsProvider.cs` 是 Depot 的 Project Settings 面板入口，负责展示自动版本号和启动项相关配置。
 - `Editor/Scripts/Inspector`
   自定义 Inspector 与编辑器界面相关实现。
 
