@@ -26,9 +26,9 @@ namespace VoyageForge.Depot.Editor.Scripts.Utilities
             Debug.Log("Current Version: " + version);
 
             string[] parts = version.Split('.');
-            int major = int.Parse(parts[0]);
-            int minor = int.Parse(parts[1]);
-            int patch = int.Parse(parts[2]);
+            int major = ParseVersionPart(parts, 0);
+            int minor = ParseVersionPart(parts, 1);
+            int patch = ParseVersionPart(parts, 2);
             int incrementStep = settings.AutoVersionIncrementStep;
 
             patch += incrementStep;
@@ -43,6 +43,16 @@ namespace VoyageForge.Depot.Editor.Scripts.Utilities
             }
 
             Debug.Log($"[AutoVersion] Updated Version: {newVersion} (step: {incrementStep})");
+        }
+
+        private static int ParseVersionPart(string[] parts, int index)
+        {
+            if (parts == null || index >= parts.Length)
+            {
+                return 0;
+            }
+
+            return int.TryParse(parts[index], out int value) ? value : 0;
         }
 
         [MenuItem(ToggleMenuPath)]
