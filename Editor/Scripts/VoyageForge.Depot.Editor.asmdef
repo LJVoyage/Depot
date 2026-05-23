@@ -2,7 +2,7 @@
     "name": "VoyageForge.Depot.Editor",
     "rootNamespace": "",
     "references": [
-        "VoyageForge.Depot.Runtime"
+        "GUID:0286d4cd81cb0c245a7c127e333f132c"
     ],
     "includePlatforms": [
         "Editor"
