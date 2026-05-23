@@ -293,6 +293,26 @@ AndroidNotificationNotifier.CancelScheduledNotification(2001);
 
 这些能力不能保证对抗系统或用户触发的强制停止。若厂商系统执行 `force-stop` 或最近任务强清，普通第三方应用无法通过公开 API 立即自恢复。
 
+## 已知问题
+
+### Gradle 构建警告
+
+#### flatDir 仓库与集中管理策略冲突
+
+`VoyageForgeAndroidCore.androidlib/build.gradle` 中使用了 `flatDir` 仓库。AGP 7.x 起推荐通过 `dependencyResolutionManagement` 集中管理仓库，模块级 `build.gradle` 中单独声明仓库会在构建时产生警告：
+
+```
+Build was configured to prefer settings repositories over project repositories
+but repository 'flatDir' was added by build file
+'unityLibrary\VoyageForgeAndroidCore.androidlib\build.gradle'
+```
+
+当前 AGP 7.4.2 下仅为警告，不影响构建通过。**AGP 8.x 上可能升级为错误**，后续需要把 `flatDir` 仓库配置提升到项目级 `settings.gradle` 或移除对本地 AAR 的直接引用。
+
+#### Java 过时 API 编译警告
+
+`VoyageForgeAndroidCore.androidlib` 内的部分 Java 代码引用了已过时的 Android API（如 `UnityPlayerActivity.java`），`javac` 在编译阶段会输出 `deprecation` 警告。当前不影响功能，后续清理即可。
+
 ## 命名说明
 - `Depot` 代表仓库、补给站。
 - 在整个 VoyageForge 体系中，Depot 更适合作为共用工具与底层能力的集中存放点。
