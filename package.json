@@ -4,21 +4,43 @@
   "displayName": "Depot",
   "description": "Voyage Depot is a shared utility stockroom for Unity projects, collecting reusable runtime helpers, editor tooling, and common extensions.",
   "unity": "2022.3",
-  "samples": [
-    {
-      "displayName": "Android Keep Alive Sample",
-      "description": "Shows foreground keep-alive service, battery optimization whitelist, and alive duration calls.",
-      "path": "Samples~/Android/AndroidKeepAliveSample"
-    },
-    {
-      "displayName": "Android Notification Sample",
-      "description": "Shows audible, silent, and scheduled Android notification calls.",
-      "path": "Samples~/Android/AndroidNotificationSample"
-    }
+  "keywords": [
+    "depot",
+    "utility",
+    "tools",
+    "unity",
+    "voyageforge"
   ],
+  "category": "Utilities",
+  "hideInEditor": false,
   "author": {
     "name": "VoyageForge",
     "url": "https://github.com/VoyageForge/Depot"
   },
-  "license": "MIT"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VoyageForge/Depot"
+  },
+  "publishConfig": {
+    "registry": "https://package.openupm.com"
+  },
+  "dependencies": {},
+  "license": "MIT",
+  "samples": [
+    {
+      "displayName": "Android Keep Alive Sample",
+      "description": "Shows foreground keep-alive service, battery optimization whitelist, and alive duration calls.",
+      "path": "Samples~/AndroidKeepAliveSample"
+    },
+    {
+      "displayName": "Serialization Sample",
+      "description": "Demonstrates Newtonsoft.Json Vector3Converter for serializing/deserializing Unity Vector3.",
+      "path": "Samples~/Serialization"
+    },
+    {
+      "displayName": "Shader Sample",
+      "description": "Provides URP shaders including AnimatedSpriteSheet and CommonUI template.",
+      "path": "Samples~/Shader"
+    }
+  ]
 }

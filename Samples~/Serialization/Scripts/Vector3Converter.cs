@@ -1,9 +1,8 @@
-﻿
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-namespace ForgeCLR.Plugins.Depot.Runtime.Serialization
+namespace VoyageForge.Depot.Samples.Serialization
 {
     public class Vector3Converter : JsonConverter<Vector3>
     {
