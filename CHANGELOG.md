@@ -1,3 +1,5 @@
+## v0.0.3
+- Initial release
 ## v0.0.2
 - Initial release
 ## [1.0.0] - 2025-10-21
