@@ -1,4 +1,6 @@
-## v0.0.5
+## v0.0.6
+- chore(depot): set version to 0.0.6
+- chore: add CHANGELOG.md.meta## v0.0.5
 - chore(depot): set version to 0.0.5
 - ci: add version guard to prevent rollback on main
 - chore(depot): update changelog for v0.0.4
