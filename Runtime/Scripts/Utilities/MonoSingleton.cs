@@ -12,6 +12,16 @@ namespace VoyageForge.Depot.Runtime.Utilities
         private static readonly object _lock = new object();
 
         private static bool _applicationIsQuitting = false;
+        private static bool _isInitialized = false;
+
+        /// <summary>当前实例是否已完成初始化。</summary>
+        public static bool IsInitialized => _isInitialized;
+
+        /// <summary>单例的有效实例是否存在（已创建且未标记销毁）。</summary>
+        public static bool HasInstance => _instance != null && !_applicationIsQuitting;
+
+        /// <summary>单例是否正在被销毁（或应用正在退出）。</summary>
+        public static bool IsDestroying => _applicationIsQuitting;
 
         /// <summary>获取单例实例。</summary>
         public static T Instance
@@ -57,6 +67,9 @@ namespace VoyageForge.Depot.Runtime.Utilities
             {
                 _instance = this as T;
                 DontDestroyOnLoad(gameObject);
+
+                OnInitialize();
+                _isInitialized = true;
             }
             else if (_instance != this)
             {
@@ -65,10 +78,26 @@ namespace VoyageForge.Depot.Runtime.Utilities
             }
         }
 
+        /// <summary>初始化回调。在 Awake 完成实例注册后自动调用。派生类可重写以执行自定义初始化逻辑。</summary>
+        protected virtual void OnInitialize()
+        {
+        }
+
         /// <summary>应用退出时标记单例销毁</summary>
         protected virtual void OnApplicationQuit()
         {
             _applicationIsQuitting = true;
+        }
+
+        /// <summary>销毁时清理。Unity 会在对象销毁时自动调用。</summary>
+        protected virtual void OnDestroy()
+        {
+            if (_instance == this)
+            {
+                _applicationIsQuitting = true;
+                _isInitialized = false;
+                _instance = null;
+            }
         }
     }
 }
