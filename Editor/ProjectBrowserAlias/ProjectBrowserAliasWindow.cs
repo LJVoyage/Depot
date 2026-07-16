@@ -1,93 +1,115 @@
 ﻿using UnityEditor;
 using UnityEngine;
-using System.IO;
-using System.Linq;
 
 
-namespace VoyageForge.EditorTools
+namespace VoyageForge.EditorTools.ProjectBrowserAlias
 {
-    public class ProjectBrowserAliasWindow : EditorWindow
+    /// <summary>
+    ///
+    /// Project Browser Alias 编辑窗口
+    ///
+    /// 功能:
+    ///
+    /// 1. 拖入资源
+    /// 2. 输入 Alias
+    /// 3. 保存到 JSON
+    ///
+    ///
+    /// 使用:
+    ///
+    /// VoyageForge
+    ///     >
+    /// Project Browser Alias
+    ///
+    /// </summary>
+    public class ProjectBrowserAliasWindow :
+        EditorWindow
     {
-        Object targetObject;
-
-        string alias;
-
-        ProjectBrowserAliasDatabase database;
-
-        string DB_PATH =
-            "Assets/Editor/VoyageForge/ProjectBrowserAlias/ProjectBrowserAliasConfig.asset";
+        /// <summary>
+        ///
+        /// 当前选择资源
+        ///
+        /// </summary>
+        private Object targetObject;
 
 
-        [MenuItem("VoyageForge/Project Browser Alias")]
-        static void Open()
+        /// <summary>
+        ///
+        /// Alias 文本
+        ///
+        /// </summary>
+        private string alias;
+
+
+        /// <summary>
+        ///
+        /// 打开窗口菜单
+        ///
+        /// </summary>
+        [MenuItem(
+            "VoyageForge/Project Browser Alias"
+        )]
+        private static void Open()
         {
-           
-            
             GetWindow<ProjectBrowserAliasWindow>(
                 "Alias"
             );
         }
 
 
-        void OnEnable()
+        /// <summary>
+        ///
+        /// GUI绘制
+        ///
+        /// </summary>
+        private void OnGUI()
         {
-            
-            DB_PATH = AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets("t:ProjectBrowserAliasDatabase").First()) ;
-            LoadDatabase();
-        }
-
-
-        void LoadDatabase()
-        {
-            database =AssetDatabase.LoadAssetAtPath <ProjectBrowserAliasDatabase>(DB_PATH);
-
-
-            if (database == null)
-            {
-                database =CreateInstance<ProjectBrowserAliasDatabase>();
-
-
-                string dir =Path.GetDirectoryName(DB_PATH);
-
-
-                if (!Directory.Exists(dir))
-                {
-                    Directory.CreateDirectory(dir);
-                }
-
-
-                AssetDatabase.CreateAsset(
-                    database,
-                    DB_PATH
-                );
-
-
-                AssetDatabase.SaveAssets();
-            }
-        }
-
-
-        void OnGUI()
-        {
-            GUILayout.Space(10);
-
-
             GUILayout.Label(
-                "拖入资源添加 Alias",
+                "Project Browser Alias",
                 EditorStyles.boldLabel
             );
 
 
-            GUILayout.Space(10);
+            EditorGUILayout.Space();
 
 
             targetObject =
                 EditorGUILayout.ObjectField(
-                    "Asset",
+                    "资源",
                     targetObject,
                     typeof(Object),
                     false
                 );
+
+
+            if (targetObject == null)
+                return;
+
+
+            string path =
+                ProjectBrowserAliasUtility
+                    .GetAssetPath(
+                        targetObject
+                    );
+
+
+            string guid =
+                ProjectBrowserAliasUtility
+                    .GetGUID(
+                        path
+                    );
+
+
+            EditorGUILayout.LabelField(
+                "Path",
+                path
+            );
+
+
+            EditorGUILayout.LabelField(
+                "GUID",
+                guid
+            );
 
 
             alias =
@@ -102,103 +124,20 @@ namespace VoyageForge.EditorTools
 
             if (
                 GUILayout.Button(
-                    "Add Alias"
-                )
-            )
+                    "保存 Alias"
+                ))
             {
-                AddAlias();
-            }
+                ProjectBrowserAliasDatabase
+                    .SetAlias(
+                        guid,
+                        path,
+                        alias
+                    );
 
 
-            GUILayout.Space(20);
-
-
-            DrawList();
-        }
-
-
-        void AddAlias()
-        {
-            if (targetObject == null)
-                return;
-
-
-            string path =
-                AssetDatabase.GetAssetPath(
-                    targetObject
+                Debug.Log(
+                    $"Alias Saved\n{path}\n{alias}"
                 );
-
-
-            string guid =
-                AssetDatabase.AssetPathToGUID(
-                    path
-                );
-
-
-            var old =
-                database.items.Find(x => x.guid == guid
-                );
-
-
-            if (old != null)
-            {
-                old.alias = alias;
-            }
-            else
-            {
-                database.items.Add(
-                    new AliasItem()
-                    {
-                        guid = guid,
-                        path = path,
-                        alias = alias
-                    }
-                );
-            }
-
-
-            EditorUtility.SetDirty(
-                database
-            );
-
-
-            AssetDatabase.SaveAssets();
-
-
-            ProjectBrowserAliasService.Load();
-
-
-            Debug.Log(
-                $"Alias Added : {path} => {alias}"
-            );
-        }
-
-
-        void DrawList()
-        {
-            GUILayout.Label(
-                "Alias List",
-                EditorStyles.boldLabel
-            );
-
-
-            foreach (var item in database.items)
-            {
-                GUILayout.BeginHorizontal();
-
-
-                GUILayout.Label(
-                    item.path
-                );
-
-
-                GUILayout.Label(
-                    item.alias,
-                    GUILayout.Width(120)
-                );
-
-
-                GUILayout.EndHorizontal();
             }
         }
     }
