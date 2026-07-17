@@ -5,140 +5,197 @@ using UnityEngine;
 namespace VoyageForge.EditorTools.ProjectBrowserAlias
 {
     /// <summary>
-    ///
-    /// Project Browser Alias 编辑窗口
-    ///
-    /// 功能:
-    ///
-    /// 1. 拖入资源
-    /// 2. 输入 Alias
-    /// 3. 保存到 JSON
+    /// VoyageForge ProjectBrowser Alias 编辑器窗口
     ///
     ///
     /// 使用:
     ///
+    /// Unity Menu:
+    ///
     /// VoyageForge
-    ///     >
-    /// Project Browser Alias
+    ///      |
+    ///      |
+    ///      Project Browser Alias
+    ///
+    ///
+    ///
+    /// 工作流程:
+    ///
+    /// 1.
+    /// 从 Project 窗口拖 Asset
+    ///
+    ///
+    /// 2.
+    ///
+    /// AssetDatabase 获取:
+    ///
+    /// Assets/xxx.prefab
+    ///
+    ///
+    /// 3.
+    ///
+    /// 转换:
+    ///
+    /// Path
+    ///
+    /// =>
+    ///
+    /// GUID
+    ///
+    ///
+    /// 4.
+    ///
+    /// 保存:
+    ///
+    /// GUID
+    ///
+    /// =>
+    ///
+    /// Alias
+    ///
     ///
     /// </summary>
-    public class ProjectBrowserAliasWindow :
-        EditorWindow
+    public class ProjectBrowserAliasWindow : EditorWindow
     {
-        /// <summary>
-        ///
-        /// 当前选择资源
-        ///
-        /// </summary>
-        private Object targetObject;
-
-
-        /// <summary>
-        ///
-        /// Alias 文本
-        ///
-        /// </summary>
+        private Object targetAsset;
+        
         private string alias;
+        
+        private string guid;
+        
+        private string path;
 
-
-        /// <summary>
-        ///
-        /// 打开窗口菜单
-        ///
-        /// </summary>
-        [MenuItem(
-            "VoyageForge/Project Browser Alias"
-        )]
-        private static void Open()
+        [MenuItem( "VoyageForge/Project Browser Alias")]
+        public static void Open()
         {
-            GetWindow<ProjectBrowserAliasWindow>(
-                "Alias"
+            ProjectBrowserAliasWindow window = GetWindow<ProjectBrowserAliasWindow>();
+
+            window.titleContent =new GUIContent("Alias"  );
+            
+            window.Show();
+        }
+
+
+        private void OnGUI()
+        {
+            GUILayout.Space(10);
+
+            GUILayout.Label(
+                "VoyageForge Project Browser Alias",
+                EditorStyles.boldLabel
             );
+
+            GUILayout.Space(10);
+            
+            EditorGUILayout.HelpBox(
+                "拖入 Project 资源，然后设置显示别名。",
+                MessageType.Info
+            );
+
+            GUILayout.Space(10);
+
+            EditorGUI.BeginChangeCheck();
+
+            targetAsset = EditorGUILayout.ObjectField(
+                "Asset", 
+                targetAsset, 
+                typeof(Object),
+                false
+            );
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                RefreshAsset();
+            }
+            
+            GUILayout.Space(10);
+
+            EditorGUILayout.LabelField("Path", path);
+
+            EditorGUILayout.LabelField("GUID", guid);
+
+            GUILayout.Space(10);
+
+            alias = EditorGUILayout.TextField("Alias", alias);
+
+            GUILayout.Space(20);
+
+            GUI.enabled = !string.IsNullOrEmpty(guid);
+
+            if (GUILayout.Button("保存 Alias"))
+            {
+                Save();
+            }
+
+            GUI.enabled = true;
         }
 
 
         /// <summary>
+        /// Asset 变化
         ///
-        /// GUI绘制
+        /// 自动解析:
+        ///
+        /// Object
+        ///
+        /// =>
+        ///
+        /// Path
+        ///
+        /// =>
+        ///
+        /// GUID
         ///
         /// </summary>
-        private void OnGUI()
+        private void RefreshAsset()
         {
-            GUILayout.Label(
-                "Project Browser Alias",
-                EditorStyles.boldLabel
-            );
+            guid = "";
+            path = "";
+            alias = "";
 
 
-            EditorGUILayout.Space();
+            if (targetAsset == null)
+                return;
+
+            path = AssetDatabase.GetAssetPath(targetAsset);
+
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            guid = AssetDatabase.AssetPathToGUID(path);
+
+            if (AliasDatabase.TryGetAlias(guid, out string oldAlias))
+            {
+                alias = oldAlias;
+            }
+            else
+            {
+                alias = targetAsset.name;
+            }
+        }
 
 
-            targetObject =
-                EditorGUILayout.ObjectField(
-                    "资源",
-                    targetObject,
-                    typeof(Object),
-                    false
-                );
-
-
-            if (targetObject == null)
+        /// <summary>
+        /// 保存配置
+        /// </summary>
+        private void Save()
+        {
+            if (string.IsNullOrEmpty(guid))
                 return;
 
 
-            string path =
-                ProjectBrowserAliasUtility
-                    .GetAssetPath(
-                        targetObject
-                    );
-
-
-            string guid =
-                ProjectBrowserAliasUtility
-                    .GetGUID(
-                        path
-                    );
-
-
-            EditorGUILayout.LabelField(
-                "Path",
-                path
-            );
-
-
-            EditorGUILayout.LabelField(
-                "GUID",
-                guid
-            );
-
-
-            alias =
-                EditorGUILayout.TextField(
-                    "Alias",
-                    alias
-                );
-
-
-            GUILayout.Space(10);
-
-
-            if (
-                GUILayout.Button(
-                    "保存 Alias"
-                ))
+            if (string.IsNullOrEmpty(alias))
             {
-                ProjectBrowserAliasDatabase
-                    .SetAlias(
-                        guid,
-                        path,
-                        alias
-                    );
-
-
-                Debug.Log(
-                    $"Alias Saved\n{path}\n{alias}"
-                );
+                Debug.LogWarning("Alias 不能为空");
+                return;
             }
+
+
+            AliasDatabase.SetAlias(guid, alias);
+
+            Debug.Log("[VoyageForge Alias] Saved\n" + guid + "\n" + alias);
+
+            Repaint();
         }
     }
 }
