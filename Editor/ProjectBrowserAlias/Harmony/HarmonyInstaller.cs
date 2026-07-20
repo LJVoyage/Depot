@@ -43,7 +43,7 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
             
             TreeViewGUI_OnContentGUI_Patch.Install(harmony);
 
-            Debug.Log("[VoyageForge Alias] Harmony Installed");
+            //Debug.Log("[VoyageForge Alias] Harmony Installed");
         }
     }
 }

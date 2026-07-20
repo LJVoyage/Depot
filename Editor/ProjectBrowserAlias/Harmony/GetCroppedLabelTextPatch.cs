@@ -61,9 +61,7 @@ namespace VoyageForge.EditorTools
 
             harmony.Patch(target, prefix: new HarmonyMethod(prefix));
 
-
-            Debug.Log("[VoyageForge Alias] GetCroppedLabelText Patch OK\n" + target
-            );
+            //Debug.Log("[VoyageForge Alias] GetCroppedLabelText Patch OK\n" + target);
         }
 
 

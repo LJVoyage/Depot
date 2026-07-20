@@ -84,7 +84,7 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
 
             harmony.Patch(target, prefix: new HarmonyMethod(prefix));
 
-            Debug.Log("[VoyageForge Alias] GUIContent.Temp Patch OK");
+            //Debug.Log("[VoyageForge Alias] GUIContent.Temp Patch OK");
         }
 
 
@@ -106,14 +106,14 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
             if (!IsProjectBrowserCall())
                 return;
 
-            Debug.Log("[Alias Check] " + t);
+            // Debug.Log("[Alias Check] " + t);
 
 
             if (AliasDatabase.TryGetAlias(t, out var alias))
             {
                 t = alias;
 
-                Debug.Log("[Alias Replace] " + t + " => " + alias);
+              //  Debug.Log("[Alias Replace] " + t + " => " + alias);
             }
         }
 

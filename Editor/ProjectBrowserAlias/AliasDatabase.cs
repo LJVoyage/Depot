@@ -110,8 +110,7 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
                 map[item.guid] = item.alias;
             }
 
-
-            Debug.Log("[VoyageForge Alias] Loaded : " + map.Count);
+            // Debug.Log("[VoyageForge Alias] Loaded : " + map.Count);
         }
 
 

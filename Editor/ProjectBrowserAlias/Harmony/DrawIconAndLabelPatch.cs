@@ -71,7 +71,7 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
 
             harmony.Patch(target, prefix: new HarmonyMethod(prefix));
 
-            Debug.Log("[VoyageForge Alias] DrawIconAndLabel Patch OK");
+            //Debug.Log("[VoyageForge Alias] DrawIconAndLabel Patch OK");
         }
 
 

@@ -1,4 +1,7 @@
-﻿using UnityEditor;
+﻿using System.Collections;
+using Unity.EditorCoroutines.Editor;
+using UnityEditor;
+using UnityEngine;
 
 
 namespace VoyageForge.EditorTools.ProjectBrowserAlias
@@ -33,15 +36,35 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
     [InitializeOnLoad]
     public static class ProjectBrowserAliasBootstrap
     {
+        private static double startTime;
+        private static bool initialized = false;
+
         static ProjectBrowserAliasBootstrap()
         {
-            EditorApplication.delayCall += () =>
+            // 如果已经初始化过，直接返回（避免重复）
+            if (initialized) return;
+
+            startTime = EditorApplication.timeSinceStartup;
+            EditorApplication.update += OnUpdate;
+        }
+
+        private static void OnUpdate()
+        {
+            // 检查是否已过 2 秒
+            if (EditorApplication.timeSinceStartup - startTime >= 1.0)
             {
-                AliasDatabase.Initialize();
-    
-                // 下一部分安装 Harmony
-                HarmonyInstaller.Install();
-            };
+                // 取消注册，防止重复执行
+                EditorApplication.update -= OnUpdate;
+
+                if (!initialized)
+                {
+                    initialized = true;
+                    // 执行初始化
+                    AliasDatabase.Initialize();
+                    HarmonyInstaller.Install();
+                    //Debug.Log("ProjectBrowserAliasBootstrap initialized after 2s delay.");
+                }
+            }
         }
     }
 }
