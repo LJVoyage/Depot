@@ -56,18 +56,13 @@ jobs:
       - name: 修改 package.json 和 CHANGELOG.md
         run: |
           NEW_VER="${{ steps.version.outputs.new_version }}"
-          # 更新 package.json
           node -e "let fs=require('fs'); let p=require('./package.json'); p.version='${NEW_VER}'; fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\n');"
-          
-          # 生成 CHANGELOG（使用临时文件避免输入输出冲突）
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           if [ -n "$LAST_TAG" ]; then
             git log "$LAST_TAG"..HEAD --pretty=format:"- %s" > CHANGELOG_TEMP.md
           else
             echo "- Initial release" > CHANGELOG_TEMP.md
           fi
-          
-          # 合并新旧 changelog 到临时文件，再替换原文件
           {
             echo "## v${NEW_VER}"
             cat CHANGELOG_TEMP.md
@@ -85,6 +80,8 @@ jobs:
           git add package.json CHANGELOG.md
           git commit -m "chore(release): bump version to ${{ steps.version.outputs.new_version }}"
           NEW_VER="${{ steps.version.outputs.new_version }}"
+          # 删除远程已存在的同名分支，避免 non-fast-forward 错误
+          git push origin --delete "release/v${NEW_VER}" 2>/dev/null || true
           git push origin "release/v${NEW_VER}"
 
       - name: 自动创建 PR（release → main）
