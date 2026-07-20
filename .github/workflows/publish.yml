@@ -3,35 +3,28 @@ name: Publish Depot
 on:
   workflow_dispatch:
     inputs:
+      base_branch:
+        description: "基础分支（将从该分支创建 release）"
+        required: false
+        default: "dev"
+        type: string
       release_version:
         description: "版本号（留空则自动递增补丁号）"
         required: false
         type: string
-
-  push:
-    branches:
-      - main
 
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
-  # ============================================================
-  # Job 1: 手动触发时，在 dev 分支上修改版本号并创建 PR
-  # ============================================================
-  prepare-release:
+  create-release-pr:
     runs-on: ubuntu-latest
-    # 只在手动触发（workflow_dispatch）且当前分支为 dev 时执行
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev'
-    env:
-      PACKAGE_JSON_PATH: package.json
-      CHANGELOG_PATH: CHANGELOG.md
     steps:
-      - name: 检出 dev 分支
+      - name: 检出基础分支
         uses: actions/checkout@v4
         with:
-          ref: dev
+          ref: ${{ github.event.inputs.base_branch || 'dev' }}
           fetch-depth: 0
 
       - name: 安装 Node.js
@@ -39,7 +32,7 @@ jobs:
         with:
           node-version: 18
 
-      - name: 安装 semver（用于计算版本号）
+      - name: 安装 semver
         run: npm install -g semver
 
       - name: 计算新版本号
@@ -55,14 +48,15 @@ jobs:
           echo "新版本号: $NEW_VER"
           echo "new_version=$NEW_VER" >> "$GITHUB_OUTPUT"
 
+      - name: 创建 release 分支
+        run: |
+          NEW_VER="${{ steps.version.outputs.new_version }}"
+          git checkout -b "release/v${NEW_VER}"
+
       - name: 修改 package.json 和 CHANGELOG.md
         run: |
           NEW_VER="${{ steps.version.outputs.new_version }}"
-
-          # 更新 package.json
           node -e "let fs=require('fs'); let p=require('./package.json'); p.version='${NEW_VER}'; fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\n');"
-
-          # 生成 CHANGELOG（从上一个 tag 到 HEAD）
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           if [ -n "$LAST_TAG" ]; then
             git log "$LAST_TAG"..HEAD --pretty=format:"- %s" > CHANGELOG_TEMP.md
@@ -75,46 +69,43 @@ jobs:
             if [ -f CHANGELOG.md ]; then
               cat CHANGELOG.md
             fi
-          } > CHANGELOG.md
+          } > CHANGELOG_NEW.md
+          mv CHANGELOG_NEW.md CHANGELOG.md
           rm -f CHANGELOG_TEMP.md
 
-      - name: 提交并推送到 dev
+      - name: 提交并推送 release 分支
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add package.json CHANGELOG.md
           git commit -m "chore(release): bump version to ${{ steps.version.outputs.new_version }}"
-          git push origin dev
+          NEW_VER="${{ steps.version.outputs.new_version }}"
+          # 删除远程已存在的同名分支，避免 non-fast-forward 错误
+          git push origin --delete "release/v${NEW_VER}" 2>/dev/null || true
+          git push origin "release/v${NEW_VER}"
 
-      - name: 自动创建 PR（dev → main）
+      - name: 自动创建 PR（release → main）
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           NEW_VER="${{ steps.version.outputs.new_version }}"
+          BRANCH="release/v${NEW_VER}"
           PR_TITLE="chore(release): v${NEW_VER}"
-
-          # 如果已有同名的 PR（dev→main），先关闭并删除分支（避免冲突）
-          EXISTING_PR=$(gh pr list --base main --head dev --json number --jq '.[0].number')
+          EXISTING_PR=$(gh pr list --base main --head "$BRANCH" --json number --jq '.[0].number')
           if [ -n "$EXISTING_PR" ]; then
             gh pr close "$EXISTING_PR" --delete-branch
           fi
-
-          # 创建新 PR
           gh pr create \
             --base main \
-            --head dev \
+            --head "$BRANCH" \
             --title "$PR_TITLE" \
             --body "## 🤖 自动发布的 PR\n\n版本号: **v${NEW_VER}**\n\n请 Review 代码，确认无误后点击 **Merge**。\n\n合并后 CI 会自动打 Tag 并发布到 OpenUPM。"
 
-  # ============================================================
-  # Job 2: 当 main 收到 PR 合并时，自动打 Tag 并发布
-  # ============================================================
   tag-release:
     runs-on: ubuntu-latest
-    # 只在 push 到 main 且该提交是 GitHub PR 合并产生的（消息包含 "Merge pull request"）时触发
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, 'Merge pull request')
     steps:
-      - name: 检出 main 分支
+      - name: 检出 main
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -124,22 +115,21 @@ jobs:
         with:
           node-version: 18
 
-      - name: 读取 package.json 中的版本号
+      - name: 读取版本号
         id: get_version
         run: |
           PKG_VER=$(node -p "require('./package.json').version")
-          echo "当前版本: $PKG_VER"
           echo "version=$PKG_VER" >> "$GITHUB_OUTPUT"
 
-      - name: 检查 Tag 是否已存在（防止覆盖）
+      - name: 检查 Tag 是否已存在
         run: |
           TAG="v${{ steps.get_version.outputs.version }}"
           if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "❌ Tag $TAG 已存在！请先递增版本号后再合并。"
+            echo "❌ Tag $TAG 已存在，请递增版本号！"
             exit 1
           fi
 
-      - name: 创建并推送 Git Tag
+      - name: 创建并推送 Tag
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -150,4 +140,34 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.get_version.outputs.version }}
-          generate_release_notes: true   # 让 GitHub 自动生成 Release 说明
+          generate_release_notes: true
+
+      - name: 将 main 合并回 dev（同步版本号）
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin dev
+          git checkout dev
+
+          if git merge origin/main --no-ff -m "chore: sync version v${{ steps.get_version.outputs.version }} back to dev"; then
+            git push origin dev
+            echo "✅ 版本号已成功同步回 dev"
+          else
+            echo "⚠️ 合并冲突，尝试通过 PR 同步..."
+            git merge --abort || true
+
+            git checkout main
+            SYNC_BRANCH="chore/sync-version-v${{ steps.get_version.outputs.version }}"
+            git checkout -b "$SYNC_BRANCH"
+            git push origin "$SYNC_BRANCH"
+
+            gh pr create \
+              --base dev \
+              --head "$SYNC_BRANCH" \
+              --title "chore: sync version v${{ steps.get_version.outputs.version }} back to dev" \
+              --body "🤖 自动同步版本号\n\n由于 `dev` 分支有新的提交，无法自动合并，请手动合并此 PR。"
+            echo "✅ 已创建同步 PR，请手动合并"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
