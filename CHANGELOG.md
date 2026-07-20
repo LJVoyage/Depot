@@ -1,4 +1,9 @@
-## v0.0.8
+## v0.0.9
+- chore(depot): set version to 0.0.9
+- chore: merge dev into main
+- update v
+- m
+- 通过分支清理优化发布流程## v0.0.8
 - chore(depot): set version to 0.0.8
 - Merge pull request #1 from VoyageForge/release/v0.0.7
 - chore(release): bump version to 0.0.7
