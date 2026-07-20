@@ -1,0 +1,153 @@
+name: Publish Depot
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: "版本号（留空则自动递增补丁号）"
+        required: false
+        type: string
+
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  # ============================================================
+  # Job 1: 手动触发时，在 dev 分支上修改版本号并创建 PR
+  # ============================================================
+  prepare-release:
+    runs-on: ubuntu-latest
+    # 只在手动触发（workflow_dispatch）且当前分支为 dev 时执行
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev'
+    env:
+      PACKAGE_JSON_PATH: package.json
+      CHANGELOG_PATH: CHANGELOG.md
+    steps:
+      - name: 检出 dev 分支
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: 安装 semver（用于计算版本号）
+        run: npm install -g semver
+
+      - name: 计算新版本号
+        id: version
+        run: |
+          INPUT_VER="${{ github.event.inputs.release_version }}"
+          CURRENT_VER=$(node -p "require('./package.json').version")
+          if [ -n "$INPUT_VER" ]; then
+            NEW_VER="$INPUT_VER"
+          else
+            NEW_VER=$(npx semver "$CURRENT_VER" -i patch)
+          fi
+          echo "新版本号: $NEW_VER"
+          echo "new_version=$NEW_VER" >> "$GITHUB_OUTPUT"
+
+      - name: 修改 package.json 和 CHANGELOG.md
+        run: |
+          NEW_VER="${{ steps.version.outputs.new_version }}"
+
+          # 更新 package.json
+          node -e "let fs=require('fs'); let p=require('./package.json'); p.version='${NEW_VER}'; fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\n');"
+
+          # 生成 CHANGELOG（从上一个 tag 到 HEAD）
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -n "$LAST_TAG" ]; then
+            git log "$LAST_TAG"..HEAD --pretty=format:"- %s" > CHANGELOG_TEMP.md
+          else
+            echo "- Initial release" > CHANGELOG_TEMP.md
+          fi
+          {
+            echo "## v${NEW_VER}"
+            cat CHANGELOG_TEMP.md
+            if [ -f CHANGELOG.md ]; then
+              cat CHANGELOG.md
+            fi
+          } > CHANGELOG.md
+          rm -f CHANGELOG_TEMP.md
+
+      - name: 提交并推送到 dev
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json CHANGELOG.md
+          git commit -m "chore(release): bump version to ${{ steps.version.outputs.new_version }}"
+          git push origin dev
+
+      - name: 自动创建 PR（dev → main）
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEW_VER="${{ steps.version.outputs.new_version }}"
+          PR_TITLE="chore(release): v${NEW_VER}"
+
+          # 如果已有同名的 PR（dev→main），先关闭并删除分支（避免冲突）
+          EXISTING_PR=$(gh pr list --base main --head dev --json number --jq '.[0].number')
+          if [ -n "$EXISTING_PR" ]; then
+            gh pr close "$EXISTING_PR" --delete-branch
+          fi
+
+          # 创建新 PR
+          gh pr create \
+            --base main \
+            --head dev \
+            --title "$PR_TITLE" \
+            --body "## 🤖 自动发布的 PR\n\n版本号: **v${NEW_VER}**\n\n请 Review 代码，确认无误后点击 **Merge**。\n\n合并后 CI 会自动打 Tag 并发布到 OpenUPM。"
+
+  # ============================================================
+  # Job 2: 当 main 收到 PR 合并时，自动打 Tag 并发布
+  # ============================================================
+  tag-release:
+    runs-on: ubuntu-latest
+    # 只在 push 到 main 且该提交是 GitHub PR 合并产生的（消息包含 "Merge pull request"）时触发
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, 'Merge pull request')
+    steps:
+      - name: 检出 main 分支
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: 读取 package.json 中的版本号
+        id: get_version
+        run: |
+          PKG_VER=$(node -p "require('./package.json').version")
+          echo "当前版本: $PKG_VER"
+          echo "version=$PKG_VER" >> "$GITHUB_OUTPUT"
+
+      - name: 检查 Tag 是否已存在（防止覆盖）
+        run: |
+          TAG="v${{ steps.get_version.outputs.version }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "❌ Tag $TAG 已存在！请先递增版本号后再合并。"
+            exit 1
+          fi
+
+      - name: 创建并推送 Git Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "v${{ steps.get_version.outputs.version }}"
+          git push origin "v${{ steps.get_version.outputs.version }}"
+
+      - name: 创建 GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          generate_release_notes: true   # 让 GitHub 自动生成 Release 说明
