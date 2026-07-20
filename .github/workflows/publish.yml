@@ -80,7 +80,7 @@ jobs:
           git add package.json CHANGELOG.md
           git commit -m "chore(release): bump version to ${{ steps.version.outputs.new_version }}"
           NEW_VER="${{ steps.version.outputs.new_version }}"
-          # 删除远程已存在的同名分支，避免 non-fast-forward 错误
+          # 删除远程已存在的同名分支，避免 non-fast-forward
           git push origin --delete "release/v${NEW_VER}" 2>/dev/null || true
           git push origin "release/v${NEW_VER}"
 
@@ -95,11 +95,20 @@ jobs:
           if [ -n "$EXISTING_PR" ]; then
             gh pr close "$EXISTING_PR" --delete-branch
           fi
+          # 使用 heredoc 保持 body 换行
           gh pr create \
             --base main \
             --head "$BRANCH" \
             --title "$PR_TITLE" \
-            --body "## 🤖 自动发布的 PR\n\n版本号: **v${NEW_VER}**\n\n请 Review 代码，确认无误后点击 **Merge**。\n\n合并后 CI 会自动打 Tag 并发布到 OpenUPM。"
+            --body-file - <<EOF
+        ## 🤖 自动发布的 PR
+
+        版本号: **v${NEW_VER}**
+
+        请 Review 代码，确认无误后点击 **Merge**。
+
+        合并后 CI 会自动打 Tag 并发布到 OpenUPM。
+        EOF
 
   tag-release:
     runs-on: ubuntu-latest
@@ -171,3 +180,16 @@ jobs:
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ========== 🆕 新增：删除已合并的 release 分支 ==========
+      - name: 删除已合并的 release 分支
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          REMOTE_BRANCH="release/v${VERSION}"
+          # 检查远程分支是否存在，若存在则删除
+          if git ls-remote --heads origin "$REMOTE_BRANCH" | grep -q "$REMOTE_BRANCH"; then
+            git push origin --delete "$REMOTE_BRANCH"
+            echo "✅ 已删除远程分支 $REMOTE_BRANCH"
+          else
+            echo "⚠️ 远程分支 $REMOTE_BRANCH 不存在，跳过"
+          fi
