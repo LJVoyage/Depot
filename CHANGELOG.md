@@ -1,4 +1,25 @@
-## v0.0.6
+## v0.0.8
+- chore(depot): set version to 0.0.8
+- Merge pull request #1 from VoyageForge/release/v0.0.7
+- chore(release): bump version to 0.0.7
+- Update publish workflow to streamline version release
+- Modify publish workflow to update version and changelog
+- 更新发布流程以包含基础分支输入
+- chore: sync main back to dev
+- chore: editor alias improvements
+- 添加 GitHub Actions 工作流以实现自动化发布
+- feat(editor)：添加项目浏览器资源别名系统 - 添加 AliasData 以存储按 GUID 标识的别名条目 - 添加 AliasDatabase 从 ProjectSettings 配置中加载别名 - 添加 Harmony 装修以拦截项目浏览器标签的渲染（DrawIconAndLabel 和 GetCroppedLabelText），并用配置的别名替换资源名称 - 添加初始别名验证的测试装修 - 使用 GUID 作为资源标识，使别名在文件移动和重命名后仍能保留
+- 重构项目浏览器别名系统：采用JSON持久化和静态数据库 - 将 ScriptableObject 配置替换为基于 JSON 的 ProjectBrowserAliasConfig - 重构 ProjectBrowserAliasDatabase 为静态类，并实现配置缓存 - 添加 GUIContentTempPatch，用于基于 Harmony 的 GUI 内容替换 - 添加 ProjectBrowserAliasUtility，用于资源路径和 GUID 的转换 - 移除已弃用的 ProjectBrowserAliasPatch 和 ProjectBrowserAliasService - 删除旧的 .asset 配置，改用 ProjectSettings 的 JSON 存储
+- chore（编辑器）：添加 ProjectBrowserAlias 文件夹结构## v0.0.7
+- Update publish workflow to streamline version release
+- Modify publish workflow to update version and changelog
+- 更新发布流程以包含基础分支输入
+- chore: sync main back to dev
+- chore: editor alias improvements
+- 添加 GitHub Actions 工作流以实现自动化发布
+- feat(editor)：添加项目浏览器资源别名系统 - 添加 AliasData 以存储按 GUID 标识的别名条目 - 添加 AliasDatabase 从 ProjectSettings 配置中加载别名 - 添加 Harmony 装修以拦截项目浏览器标签的渲染（DrawIconAndLabel 和 GetCroppedLabelText），并用配置的别名替换资源名称 - 添加初始别名验证的测试装修 - 使用 GUID 作为资源标识，使别名在文件移动和重命名后仍能保留
+- 重构项目浏览器别名系统：采用JSON持久化和静态数据库 - 将 ScriptableObject 配置替换为基于 JSON 的 ProjectBrowserAliasConfig - 重构 ProjectBrowserAliasDatabase 为静态类，并实现配置缓存 - 添加 GUIContentTempPatch，用于基于 Harmony 的 GUI 内容替换 - 添加 ProjectBrowserAliasUtility，用于资源路径和 GUID 的转换 - 移除已弃用的 ProjectBrowserAliasPatch 和 ProjectBrowserAliasService - 删除旧的 .asset 配置，改用 ProjectSettings 的 JSON 存储
+- chore（编辑器）：添加 ProjectBrowserAlias 文件夹结构## v0.0.6
 - chore(depot): set version to 0.0.6
 - chore: add CHANGELOG.md.meta## v0.0.5
 - chore(depot): set version to 0.0.5
