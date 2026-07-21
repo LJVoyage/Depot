@@ -55,14 +55,16 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
             {
                 // 取消注册，防止重复执行
                 EditorApplication.update -= OnUpdate;
-
+                
                 if (!initialized)
                 {
                     initialized = true;
-                    // 执行初始化
-                    AliasDatabase.Initialize();
-                    HarmonyInstaller.Install();
-                    //Debug.Log("ProjectBrowserAliasBootstrap initialized after 2s delay.");
+                    EditorApplication.delayCall += () => 
+                    {
+                        AliasDatabase.Initialize();
+                        HarmonyInstaller.Install();
+                    };
+                    
                 }
             }
         }

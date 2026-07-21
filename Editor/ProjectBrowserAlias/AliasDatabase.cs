@@ -41,11 +41,11 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
     public static class AliasDatabase
     {
         private static Dictionary<string, string> map;
-        
+
         private static bool initialized;
 
         private const string ConfigPath = "ProjectSettings/VoyageForge/ProjectBrowserAlias.json";
-        
+
         /// <summary>
         /// 初始化数据库
         /// </summary>
@@ -53,10 +53,10 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
         {
             if (initialized)
                 return;
-            
+
             initialized = true;
 
-            map =  new Dictionary<string, string>();
+            map = new Dictionary<string, string>();
 
             Load();
         }
@@ -75,15 +75,12 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
         /// </summary>
         private static void Load()
         {
-            string absolute =System.IO.Path.Combine(
-                    Application.dataPath,"..",ConfigPath
-                );
+            string absolute = System.IO.Path.Combine(Application.dataPath, "..", ConfigPath);
 
 
             if (!System.IO.File.Exists(absolute))
             {
                 Debug.Log("[VoyageForge Alias] Config Not Found\n" + absolute);
-
 
                 return;
             }
@@ -91,9 +88,7 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
 
             string json = System.IO.File.ReadAllText(absolute);
 
-            ProjectBrowserAliasConfig config = JsonUtility.FromJson<ProjectBrowserAliasConfig>(
-                json
-            );
+            ProjectBrowserAliasConfig config = JsonUtility.FromJson<ProjectBrowserAliasConfig>(json);
 
 
             if (config == null || config.aliases == null)
@@ -157,9 +152,7 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
 
             string json = JsonUtility.ToJson(config, true);
 
-            string absolute = System.IO.Path.Combine(
-                Application.dataPath, "..", ConfigPath
-            );
+            string absolute = System.IO.Path.Combine(Application.dataPath, "..", ConfigPath);
 
             string dir = System.IO.Path.GetDirectoryName(absolute);
 

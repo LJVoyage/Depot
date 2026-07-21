@@ -118,7 +118,7 @@ public static class AssetsTreeViewAliasPatch
 
 [InitializeOnLoad]
 public static class AliasLoader
-{
+{ 
     static AliasLoader()
     {
         // EditorApplication.delayCall += () =>

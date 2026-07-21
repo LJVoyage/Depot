@@ -7,52 +7,17 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
     /// <summary>
     /// VoyageForge ProjectBrowser Alias 编辑器窗口
     ///
-    ///
-    /// 使用:
-    ///
-    /// Unity Menu:
-    ///
-    /// VoyageForge
-    ///      |
-    ///      |
-    ///      Project Browser Alias
-    ///
-    ///
+    /// 使用:Unity Menu: VoyageForge|| Project Browser Alias
     ///
     /// 工作流程:
     ///
-    /// 1.
-    /// 从 Project 窗口拖 Asset
+    /// 1.从 Project 窗口拖 Asset
     ///
+    /// 2.AssetDatabase 获取:Assets/xxx.prefab
     ///
-    /// 2.
+    /// 3.转换:Path=>GUID
     ///
-    /// AssetDatabase 获取:
-    ///
-    /// Assets/xxx.prefab
-    ///
-    ///
-    /// 3.
-    ///
-    /// 转换:
-    ///
-    /// Path
-    ///
-    /// =>
-    ///
-    /// GUID
-    ///
-    ///
-    /// 4.
-    ///
-    /// 保存:
-    ///
-    /// GUID
-    ///
-    /// =>
-    ///
-    /// Alias
-    ///
+    /// 4.保存:GUID=>Alias
     ///
     /// </summary>
     public class ProjectBrowserAliasWindow : EditorWindow
