@@ -1,4 +1,6 @@
-## v0.0.10
+## v0.0.11
+- chore(depot): set version to 0.0.11
+- 修复 unityGui 报错问题## v0.0.10
 - chore(depot): set version to 0.0.10
 - 等第一帧渲染完全结束后 在自动 安装 Harmony
 - Merge remote-tracking branch 'origin/main'
