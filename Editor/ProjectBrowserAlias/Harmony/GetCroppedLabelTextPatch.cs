@@ -42,26 +42,26 @@ namespace VoyageForge.EditorTools
     {
         public static void Install(Harmony harmony)
         {
-            MethodInfo target = FindTarget();
+            // 1. 检查 GUI 是否就绪
+            if (!HarmonyInstaller.IsGUIAvailable())
+            {
+                EditorApplication.delayCall += () => Install(harmony);
+                return;
+            }
             
+            // 2. GUI 已就绪，执行正常的 Patch 逻辑
+            MethodInfo target = FindTarget();
             if (target == null)
             {
                 Debug.LogError("[VoyageForge Alias] GetCroppedLabelText not found");
                 return;
             }
 
-
-            MethodInfo prefix =typeof(GetCroppedLabelTextPatch)
-                    .GetMethod(
-                        nameof(Prefix),
-                        BindingFlags.Static |
-                        BindingFlags.NonPublic
-                    );
-
+            MethodInfo prefix = typeof(GetCroppedLabelTextPatch)
+                .GetMethod(nameof(Prefix), BindingFlags.Static | BindingFlags.NonPublic);
 
             harmony.Patch(target, prefix: new HarmonyMethod(prefix));
-
-            //Debug.Log("[VoyageForge Alias] GetCroppedLabelText Patch OK\n" + target);
+            // Debug.Log("[VoyageForge Alias] GetCroppedLabelText Patch OK\n" + target);
         }
 
 

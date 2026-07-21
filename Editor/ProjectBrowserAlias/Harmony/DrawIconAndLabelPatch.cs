@@ -34,6 +34,13 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
     {
         public static void Install(Harmony harmony)
         {
+            // 1. 检查 GUI 是否就绪
+            if (!HarmonyInstaller.IsGUIAvailable())
+            {
+                EditorApplication.delayCall += () => Install(harmony);
+                return;
+            }
+            
             Type localGroup =
                 typeof(EditorWindow)
                     .Assembly

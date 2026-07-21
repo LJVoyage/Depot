@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using HarmonyLib;
+using UnityEditor;
 using UnityEngine;
 
 
@@ -53,6 +54,14 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
     {
         public static void Install(Harmony harmony)
         {
+            
+            // 1. 检查 GUI 是否就绪
+            if (!HarmonyInstaller.IsGUIAvailable())
+            {
+                EditorApplication.delayCall += () => Install(harmony);
+                return;
+            }
+            
             MethodInfo target = typeof(GUIContent).GetMethod(
                 "Temp",
                 BindingFlags.Static |

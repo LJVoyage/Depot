@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using HarmonyLib;
+using UnityEditor;
 using UnityEngine;
 using UnityEditor.IMGUI.Controls;
 
@@ -16,6 +17,13 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
 
         public static void Install(Harmony harmony)
         {
+            // 1. 检查 GUI 是否就绪
+            if (!HarmonyInstaller.IsGUIAvailable())
+            {
+                EditorApplication.delayCall += () => Install(harmony);
+                return;
+            }
+            
             // 1. 动态获取 internal 类型 TreeViewGUI
             Type treeViewGUIType = AccessTools.TypeByName("UnityEditor.IMGUI.Controls.TreeViewGUI");
             if (treeViewGUIType == null)

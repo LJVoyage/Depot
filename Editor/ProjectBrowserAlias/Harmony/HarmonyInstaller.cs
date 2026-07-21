@@ -45,5 +45,19 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
 
             //Debug.Log("[VoyageForge Alias] Harmony Installed");
         }
+        
+        public static bool IsGUIAvailable()
+        {
+            try
+            {
+                var skin = GUI.skin; // 若不在 OnGUI 中会抛出异常
+                return true;
+            }
+            catch
+            {
+                Debug.Log("Harmony install failed");
+                return false;
+            }
+        }
     }
 }
