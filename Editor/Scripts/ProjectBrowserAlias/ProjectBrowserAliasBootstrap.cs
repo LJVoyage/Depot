@@ -1,10 +1,9 @@
 ﻿using System.Collections;
-using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEngine;
 
 
-namespace VoyageForge.EditorTools.ProjectBrowserAlias
+namespace VoyageForge.Depot.Editor
 {
     /// <summary>
     /// VoyageForge ProjectBrowser Alias 启动器
@@ -41,7 +40,6 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
             if (initialized) return;
             initialized = true;
 
-            AliasDatabase.Initialize();
             HarmonyInstaller.Install(); // 内部会自行处理 GUI 就绪问题
         }
     }

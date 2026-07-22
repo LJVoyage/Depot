@@ -2,7 +2,7 @@
 using UnityEngine;
 
 
-namespace VoyageForge.EditorTools.ProjectBrowserAlias
+namespace VoyageForge.Depot.Editor
 {
     /// <summary>
     /// VoyageForge ProjectBrowser Alias 编辑器窗口
@@ -97,27 +97,13 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
 
 
         /// <summary>
-        /// Asset 变化
-        ///
-        /// 自动解析:
-        ///
-        /// Object
-        ///
-        /// =>
-        ///
-        /// Path
-        ///
-        /// =>
-        ///
-        /// GUID
-        ///
+        /// Asset 变化自动解析:Object=>Path =>GUID
         /// </summary>
         private void RefreshAsset()
         {
             guid = "";
             path = "";
             alias = "";
-
 
             if (targetAsset == null)
                 return;
@@ -129,8 +115,9 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
 
             guid = AssetDatabase.AssetPathToGUID(path);
 
-            if (AliasDatabase.TryGetAlias(guid, out string oldAlias))
+            if (ForgeMetaDatabase.TryGetNestedField(guid,ProjectBrowserAlias.AliasKey, out string oldAlias))
             {
+                Debug.Log(oldAlias);
                 alias = oldAlias;
             }
             else
@@ -155,12 +142,19 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
                 return;
             }
 
-
-            AliasDatabase.SetAlias(guid, alias);
+            ForgeMetaDatabase.SetNestedField(guid, ProjectBrowserAlias.AliasKey, alias);
 
             Debug.Log("[VoyageForge Alias] Saved\n" + guid + "\n" + alias);
 
             Repaint();
         }
+    }
+
+
+    public static class ProjectBrowserAlias
+    {
+        public const string PackageName = "com.voyageforge.depot";
+        
+        public const string AliasKey = PackageName + ".Alias";
     }
 }

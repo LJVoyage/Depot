@@ -2,7 +2,7 @@
 using UnityEngine;
 
 
-namespace VoyageForge.EditorTools.ProjectBrowserAlias
+namespace VoyageForge.Depot.Editor
 {
     /// <summary>
     /// Harmony 总安装入口

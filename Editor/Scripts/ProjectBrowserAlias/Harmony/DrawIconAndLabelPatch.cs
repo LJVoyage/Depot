@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 
 
-namespace VoyageForge.EditorTools.ProjectBrowserAlias
+namespace VoyageForge.Depot.Editor
 {
     /// <summary>
     /// ObjectListArea.LocalGroup.DrawIconAndLabel Patch
@@ -40,7 +40,7 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
                 EditorApplication.delayCall += () => Install(harmony);
                 return;
             }
-            
+
             Type localGroup =
                 typeof(EditorWindow)
                     .Assembly
@@ -193,7 +193,7 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
             string alias;
 
 
-            if (AliasDatabase.TryGetAlias(guid, out alias))
+            if (ForgeMetaDatabase.TryGetNestedField(guid, ProjectBrowserAlias.AliasKey, out alias))
             {
                 /*
                  *

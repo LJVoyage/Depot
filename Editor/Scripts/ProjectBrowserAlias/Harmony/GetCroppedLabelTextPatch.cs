@@ -4,10 +4,9 @@ using HarmonyLib;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
-using VoyageForge.EditorTools.ProjectBrowserAlias;
 
 
-namespace VoyageForge.EditorTools
+namespace VoyageForge.Depot.Editor
 {
     /// <summary>
     /// ProjectBrowser资源名称替换核心Patch
@@ -146,7 +145,7 @@ namespace VoyageForge.EditorTools
             if (string.IsNullOrEmpty(guid))
                 return true;
 
-            if (AliasDatabase.TryGetAlias(guid, out var alias))
+            if (ForgeMetaDatabase.TryGetNestedField(guid,ProjectBrowserAlias.AliasKey , out var alias))
             {
                 __result = alias;
             }

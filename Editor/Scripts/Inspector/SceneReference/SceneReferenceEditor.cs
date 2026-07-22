@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using VoyageForge.Depot.Editor.Scripts.Utilities;
 
-namespace VoyageForge.Depot.Editor.Scripts.Inspector
+namespace VoyageForge.Depot.Editor
 {
     [CustomPropertyDrawer(typeof(SceneReference))]
     public class SceneReferenceEditor : PropertyDrawer 

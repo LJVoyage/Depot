@@ -3,7 +3,7 @@ using VoyageForge.Depot.Runtime.Attributes;
 using UnityEditor;
 using UnityEngine;
 
-namespace VoyageForge.Depot.Editor.Attributes
+namespace VoyageForge.Depot.Editor
 {
     [CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
     public class ReadOnlyDrawer : PropertyDrawer

@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEditor.IMGUI.Controls;
 
-namespace VoyageForge.EditorTools.ProjectBrowserAlias
+namespace VoyageForge.Depot.Editor
 {
     public static class TreeViewGUI_OnContentGUI_Patch
     {
@@ -87,7 +87,7 @@ namespace VoyageForge.EditorTools.ProjectBrowserAlias
                 return;
 
             // 示例：替换 label（使用 guid 查询别名）
-            if (!string.IsNullOrEmpty(label) && AliasDatabase.TryGetAlias(guid, out var alias))
+            if (!string.IsNullOrEmpty(label) && ForgeMetaDatabase.TryGetNestedField(guid,ProjectBrowserAlias.AliasKey, out var alias))
             {
                 label = alias;
                 // Debug.Log($"[Alias Replace] {label} => {alias}");
