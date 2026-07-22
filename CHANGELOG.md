@@ -1,4 +1,6 @@
-## v0.0.11
+## v0.0.12
+- chore(depot): set version to 0.0.12
+- 移动 alias 路径，实现 forgeMetaDatabase## v0.0.11
 - chore(depot): set version to 0.0.11
 - 修复 unityGui 报错问题## v0.0.10
 - chore(depot): set version to 0.0.10
