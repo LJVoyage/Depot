@@ -1,4 +1,6 @@
-## v0.0.12
+## v0.0.13
+- chore(depot): set version to 0.0.13
+- 资源路径脚本生成器## v0.0.12
 - chore(depot): set version to 0.0.12
 - 移动 alias 路径，实现 forgeMetaDatabase## v0.0.11
 - chore(depot): set version to 0.0.11
