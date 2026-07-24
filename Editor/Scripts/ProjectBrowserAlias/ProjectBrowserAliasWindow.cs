@@ -30,7 +30,7 @@ namespace VoyageForge.Depot.Editor
         
         private string path;
 
-        [MenuItem( "VoyageForge/Project Browser Alias")]
+        [MenuItem( "VoyageForge/Depot/Project Browser Alias")]
         public static void Open()
         {
             ProjectBrowserAliasWindow window = GetWindow<ProjectBrowserAliasWindow>();
