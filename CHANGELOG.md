@@ -1,4 +1,7 @@
-## v0.0.14
+## v0.0.15
+- chore(depot): set version to 0.0.15
+- 优化 Singleton
+- 优化 mono singleton## v0.0.14
 - chore(depot): set version to 0.0.14
 - mono 单例 允许自定义名称
 - 添加readme文档## v0.0.13
