@@ -5,13 +5,14 @@ namespace VoyageForge.Depot.Runtime.Utilities
     /// <summary>
     /// 可继承的 MonoBehaviour 单例基类。
     /// </summary>
-    public class MonoSingleton<T> : MonoBehaviour where T : MonoSingleton<T>
+    public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoSingleton<T>
     {
         private static T _instance;
 
         private static readonly object _lock = new object();
 
         private static bool _applicationIsQuitting = false;
+        
         private static bool _isInitialized = false;
 
         /// <summary>当前实例是否已完成初始化。</summary>
@@ -23,8 +24,9 @@ namespace VoyageForge.Depot.Runtime.Utilities
         /// <summary>单例是否正在被销毁（或应用正在退出）。</summary>
         public static bool IsDestroying => _applicationIsQuitting;
 
+        /// <summary>单例 GameObject 名称，派生类可重写以自定义。</summary>
         protected virtual string _name => $"[Singleton] {typeof(T)}";
-        
+
         /// <summary>获取单例实例。</summary>
         public static T Instance
         {
@@ -48,7 +50,7 @@ namespace VoyageForge.Depot.Runtime.Utilities
                         {
                             GameObject singletonObject = new GameObject();
                             _instance = singletonObject.AddComponent<T>();
-                            singletonObject.name = _instance._name;
+                            singletonObject.name = _instance._name;   // 使用虚拟属性
 
                             // 默认设置为跨场景持久化
                             DontDestroyOnLoad(singletonObject);
@@ -63,15 +65,19 @@ namespace VoyageForge.Depot.Runtime.Utilities
         }
 
         /// <summary>在 Awake 时检查重复实例</summary>
-        protected virtual void Awake()
+        private void Awake()
         {
             if (_instance == null)
             {
                 _instance = this as T;
                 DontDestroyOnLoad(gameObject);
 
+                // 调用抽象初始化方法（必须由派生类实现）
                 OnInitialize();
                 _isInitialized = true;
+
+                // 可选扩展钩子
+                OnAwake();
             }
             else if (_instance != this)
             {
@@ -80,26 +86,44 @@ namespace VoyageForge.Depot.Runtime.Utilities
             }
         }
 
-        /// <summary>初始化回调。在 Awake 完成实例注册后自动调用。派生类可重写以执行自定义初始化逻辑。</summary>
-        protected virtual void OnInitialize()
-        {
-        }
+        /// <summary>
+        /// 初始化回调。在 Awake 完成实例注册后自动调用。
+        /// 派生类必须实现此方法以完成自定义初始化逻辑。
+        /// </summary>
+        protected abstract void OnInitialize();
+
+        /// <summary>
+        /// Awake 扩展钩子，派生类可重写以执行额外初始化（可选）。
+        /// </summary>
+        protected virtual void OnAwake() { }
 
         /// <summary>应用退出时标记单例销毁</summary>
-        protected virtual void OnApplicationQuit()
+        private void OnApplicationQuit()
         {
             _applicationIsQuitting = true;
+            OnApplicationQuitting();   // 钩子供派生类清理
         }
 
+        /// <summary>
+        /// OnApplicationQuit 扩展钩子，派生类可重写以执行清理（可选）。
+        /// </summary>
+        protected virtual void OnApplicationQuitting() { }
+
         /// <summary>销毁时清理。Unity 会在对象销毁时自动调用。</summary>
-        protected virtual void OnDestroy()
+        private void OnDestroy()
         {
             if (_instance == this)
             {
-                _applicationIsQuitting = true;
+                // 注意：不修改 _applicationIsQuitting，以支持非退出场景下的重新创建
                 _isInitialized = false;
                 _instance = null;
+                OnDestroying();        // 钩子供派生类清理
             }
         }
+
+        /// <summary>
+        /// OnDestroy 扩展钩子，派生类可重写以执行清理（可选）。
+        /// </summary>
+        protected virtual void OnDestroying() { }
     }
 }
