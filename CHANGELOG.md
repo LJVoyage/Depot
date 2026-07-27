@@ -1,4 +1,7 @@
-## v0.0.13
+## v0.0.14
+- chore(depot): set version to 0.0.14
+- mono 单例 允许自定义名称
+- 添加readme文档## v0.0.13
 - chore(depot): set version to 0.0.13
 - 资源路径脚本生成器## v0.0.12
 - chore(depot): set version to 0.0.12
