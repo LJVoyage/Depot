@@ -23,6 +23,8 @@ namespace VoyageForge.Depot.Runtime.Utilities
         /// <summary>单例是否正在被销毁（或应用正在退出）。</summary>
         public static bool IsDestroying => _applicationIsQuitting;
 
+        protected virtual string _name => $"[Singleton] {typeof(T)}";
+        
         /// <summary>获取单例实例。</summary>
         public static T Instance
         {
@@ -46,7 +48,7 @@ namespace VoyageForge.Depot.Runtime.Utilities
                         {
                             GameObject singletonObject = new GameObject();
                             _instance = singletonObject.AddComponent<T>();
-                            singletonObject.name = $"[Singleton] {typeof(T)}";
+                            singletonObject.name = _instance._name;
 
                             // 默认设置为跨场景持久化
                             DontDestroyOnLoad(singletonObject);
