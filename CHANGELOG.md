@@ -1,4 +1,6 @@
-## v0.0.15
+## v0.0.16
+- chore(depot): set version to 0.0.16
+- 函数静态化## v0.0.15
 - chore(depot): set version to 0.0.15
 - 优化 Singleton
 - 优化 mono singleton## v0.0.14
