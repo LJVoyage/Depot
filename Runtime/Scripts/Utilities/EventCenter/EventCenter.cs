@@ -18,49 +18,48 @@ namespace VoyageForge.Depot.Runtime.Utilities
         // 私有构造，确保单例或受控创建
         private EventCenter()
         {
-            
         }
 
         /// <summary>
         /// 订阅事件（约束 E 必须是 TBase 的子类/实现类）
         /// </summary>
-        public void Subscribe<E>(Action<E> listener) where E : TBase
+        public static void Subscribe<E>(Action<E> listener) where E : TBase
         {
             Type eventType = typeof(E);
-            if (_eventTable.TryGetValue(eventType, out var existingDelegate))
+            if (Instance._eventTable.TryGetValue(eventType, out var existingDelegate))
             {
                 // 合并委托
-                _eventTable[eventType] = Delegate.Combine(existingDelegate, listener);
+                Instance._eventTable[eventType] = Delegate.Combine(existingDelegate, listener);
             }
             else
             {
-                _eventTable[eventType] = listener;
+                Instance._eventTable[eventType] = listener;
             }
         }
 
         /// <summary>
         /// 取消订阅（必须在销毁时调用）
         /// </summary>
-        public void Unsubscribe<E>(Action<E> listener) where E : TBase
+        public static void Unsubscribe<E>(Action<E> listener) where E : TBase
         {
             Type eventType = typeof(E);
-            if (_eventTable.TryGetValue(eventType, out var existingDelegate))
+            if (Instance._eventTable.TryGetValue(eventType, out var existingDelegate))
             {
                 var newDelegate = Delegate.Remove(existingDelegate, listener);
                 if (newDelegate == null)
-                    _eventTable.Remove(eventType);
+                    Instance._eventTable.Remove(eventType);
                 else
-                    _eventTable[eventType] = newDelegate;
+                    Instance._eventTable[eventType] = newDelegate;
             }
         }
 
         /// <summary>
         /// 触发事件（约束 E 必须是 TBase 的子类/实现类）
         /// </summary>
-        public void Trigger<E>(E eventData) where E : TBase
+        public static void Trigger<E>(E eventData) where E : TBase
         {
             Type eventType = typeof(E);
-            if (_eventTable.TryGetValue(eventType, out var existingDelegate))
+            if (Instance._eventTable.TryGetValue(eventType, out var existingDelegate))
             {
                 // 将 Delegate 转换为具体的强类型委托并执行
                 (existingDelegate as Action<E>)?.Invoke(eventData);
@@ -70,6 +69,6 @@ namespace VoyageForge.Depot.Runtime.Utilities
         /// <summary>
         /// 清空所有监听（用于场景卸载或重置）
         /// </summary>
-        public void Clear() => _eventTable.Clear();
+        public static void Clear() => Instance._eventTable.Clear();
     }
 }
