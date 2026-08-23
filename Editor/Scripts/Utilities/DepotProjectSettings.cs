@@ -2,7 +2,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace VoyageForge.Depot.Editor.Scripts.Utilities
+namespace VoyageForge.Depot.Editor.Utilities
 {
     [FilePath("ProjectSettings/DepotSettings.asset", FilePathAttribute.Location.ProjectFolder)]
     public class DepotProjectSettings : ScriptableSingleton<DepotProjectSettings>

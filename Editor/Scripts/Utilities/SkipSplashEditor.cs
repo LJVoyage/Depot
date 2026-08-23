@@ -1,6 +1,6 @@
 ﻿using UnityEditor;
 
-namespace VoyageForge.Depot.Editor.Scripts.Utilities
+namespace VoyageForge.Depot.Editor.Utilities
 {
     public static class SkipSplashEditor
     {

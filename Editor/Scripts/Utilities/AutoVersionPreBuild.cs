@@ -3,7 +3,7 @@ using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
-namespace VoyageForge.Depot.Editor.Scripts.Utilities
+namespace VoyageForge.Depot.Editor.Utilities
 {
     public class AutoVersionPreBuild : IPreprocessBuildWithReport
     {

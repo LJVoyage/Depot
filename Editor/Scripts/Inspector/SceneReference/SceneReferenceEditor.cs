@@ -4,12 +4,12 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using VoyageForge.Depot.Editor.Scripts.Utilities;
+using VoyageForge.Depot.Editor.Utilities;
 
 namespace VoyageForge.Depot.Editor
 {
     [CustomPropertyDrawer(typeof(SceneReference))]
-    public class SceneReferenceEditor : PropertyDrawer 
+    public class SceneReferenceEditor : PropertyDrawer
     {
         private const string DefaultInspectorUxmlPath =
             "Assets/Depot/Editor/Scripts/Inspector/SceneReference/SceneReferenceInspector.uxml";
@@ -21,7 +21,7 @@ namespace VoyageForge.Depot.Editor
         {
             if (_visualTreeAsset == null)
             {
-                _visualTreeAsset = UxmlAssetUtility.LoadVisualTreeAsset(DefaultInspectorUxmlPath);
+                _visualTreeAsset = UxmlUtility.LoadVisualTreeAsset(DefaultInspectorUxmlPath);
             }
 
             if (_visualTreeAsset == null)
@@ -56,7 +56,8 @@ namespace VoyageForge.Depot.Editor
             sceneDetailsFoldout.RegisterValueChangedCallback(evt => FoldoutStates[propertyKey] = evt.newValue);
 
             // 初始化
-            UpdateDisplay(guidProperty, objectField, noSceneHint, sceneDetailsFoldout, summaryLabel, pathLabel, nameLabel);
+            UpdateDisplay(guidProperty, objectField, noSceneHint, sceneDetailsFoldout, summaryLabel, pathLabel,
+                nameLabel);
 
             // 值改变事件
             objectField.RegisterValueChangedCallback(evt =>
@@ -79,7 +80,8 @@ namespace VoyageForge.Depot.Editor
                     nameProperty.stringValue = sceneAsset.name;
                 }
 
-                UpdateDisplay(guidProperty, objectField, noSceneHint, sceneDetailsFoldout, summaryLabel, pathLabel, nameLabel);
+                UpdateDisplay(guidProperty, objectField, noSceneHint, sceneDetailsFoldout, summaryLabel, pathLabel,
+                    nameLabel);
                 property.serializedObject.ApplyModifiedProperties();
             });
 
@@ -110,7 +112,7 @@ namespace VoyageForge.Depot.Editor
             sceneDetailsFoldout.style.display = DisplayStyle.Flex;
 
             string path = AssetDatabase.GUIDToAssetPath(guid);
-            
+
             if (string.IsNullOrEmpty(path))
             {
                 sceneDetailsFoldout.text = "场景详情";
@@ -123,7 +125,7 @@ namespace VoyageForge.Depot.Editor
             }
 
             var sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(path);
-            
+
             if (sceneAsset == null)
             {
                 sceneDetailsFoldout.text = "场景详情";
@@ -140,7 +142,7 @@ namespace VoyageForge.Depot.Editor
             summaryLabel.text = sceneAsset.name;
             nameLabel.text = sceneAsset.name;
             pathLabel.text = path;
-            
+
             // 重置为正常颜色
             sceneDetailsFoldout.style.backgroundColor = new StyleColor(new Color(0.91f, 0.96f, 0.91f)); // #E8F5E9
         }
@@ -149,6 +151,5 @@ namespace VoyageForge.Depot.Editor
         {
             return FoldoutStates.TryGetValue(propertyKey, out bool isExpanded) && isExpanded;
         }
-
     }
 }

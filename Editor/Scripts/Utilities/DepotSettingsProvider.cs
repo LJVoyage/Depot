@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine.UIElements;
 
-namespace VoyageForge.Depot.Editor.Scripts.Utilities
+namespace VoyageForge.Depot.Editor.Utilities
 {
     /// <summary>
     /// Depot 项目设置提供器。
@@ -88,7 +88,7 @@ namespace VoyageForge.Depot.Editor.Scripts.Utilities
                 return _settingsVisualTreeAsset;
             }
 
-            _settingsVisualTreeAsset = UxmlAssetUtility.LoadVisualTreeAsset(
+            _settingsVisualTreeAsset = UxmlUtility.LoadVisualTreeAsset(
                 SettingsUxmlPath);
             return _settingsVisualTreeAsset;
         }
